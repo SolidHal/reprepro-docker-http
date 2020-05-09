@@ -3,23 +3,11 @@
 Debian package repository.
 
 * Based upon: [the guide for setting up a private debian repository](http://wiki.debian.org/SettingUpSignedAptRepositoryWithReprepro).
-* Purpose: Hosting in-house deb packages, not designed to fulfill the role of a full repository.
 
 ## Building the image (in-house)
 ```bash
-$ git clone git@bitbucket.org:iomoss/docker-files.git
-$ cd docker-files/reprepro
 $ ./create-image.sh
 ```
-Access to the repository requires affiliation with IOMOSS.
-
-## Running (in-house)
-```bash
-$ git clone git@bitbucket.org:iomoss/docker-files.git
-$ cd docker-files/reprepro
-$ ./run.sh /home/skeen/reprepro 8080 2222
-```
-Access to the repository requires affiliation with IOMOSS.
 
 ## Running (stand-alone)
 ### Configuration done
@@ -28,7 +16,7 @@ Assuming the configuration is done, you can start the server as;
 $ export CONFIG_FOLDER=/home/config_here
 $ export WEBSERVER_PORT=8080
 $ export SSH_PORT=2222
-$ docker run -v $CONFIG_FOLDER:/srv/ -p $WEBSERVER_PORT:80 -p $SSH_PORT:22 -d iomoss/reprepro
+$ docker run -v $CONFIG_FOLDER:/srv/ -p $WEBSERVER_PORT:80 -p $SSH_PORT:22 -d solidhal/reprepro
 ```
 
 ### Configurating
@@ -43,7 +31,7 @@ Stand-alone (Interactive configuration);
 $ export CONFIG_FOLDER=/home/config_here
 $ export WEBSERVER_PORT=8080
 $ export SSH_PORT=2222
-$ docker run -v $CONFIG_FOLDER:/srv/ -p $WEBSERVER_PORT:80 -p $SSH_PORT:22 -it iomoss/reprepro
+$ docker run -v $CONFIG_FOLDER:/srv/ -p $WEBSERVER_PORT:80 -p $SSH_PORT:22 -it solidhal/reprepro
 ```
 
 Stand-alone (Environemental configuration);
@@ -51,9 +39,6 @@ Stand-alone (Environemental configuration);
 $ export CONFIG_FOLDER=/home/config_here
 $ export WEBSERVER_PORT=8080
 $ export SSH_PORT=2222
-$ export KEY_REAL_NAME="{{YOUR-NAME}}"
-$ export KEY_COMMENT="{{GPG-KEY COMMENT}}"
-$ export KEY_EMAIL="{{YOUR-EMAIL}}"
 $ export HOSTNAME="{{YOUR-DOMAIN-NAME}}"
 $ export PROJECT_NAME="{{NAME-OF-APT-REPO}}" 
 $ export CODE_NAME="{{CODENAME-OF-OS-RELEASE}}" 
@@ -61,7 +46,7 @@ $ docker run -v $CONFIG_FOLDER:/srv/ -p $WEBSERVER_PORT:80 -p $SSH_PORT:22 \
              -e KEY_REAL_NAME=$KEY_REAL_NAME -e KEY_COMMENT=$KEY_COMMENT \
              -e KEY_EMAIL=$KEY_EMAIL -e HOSTNAME=$HOSTNAME \
              -e PROJECT_NAME=$PROJECT_NAME -e CODE_NAME=$CODE_NAME \
-             -it iomoss/reprepro
+             -it solidhal/reprepro
 ```
 
 Stand-alone (Manual); The same as 'Configuration done'
@@ -78,9 +63,7 @@ Stand-alone (Manual); The same as 'Configuration done'
 
 *Note: For manual configuration see the bottom of this file.*
 
-* `$KEY_REAL_NAME`: The name to be used on the GPG keys
-* `$KEY_COMMENT`: The comment to be used on the GPG keys
-* `$KEY_EMAIL`: The email to be used on the GPG keys
+* Gpg key information lower down
 
 * `$HOSTNAME`: The hostname of the server (i.e. the url on which it's reached).
 * `$PROJECT_NAME`: The name of the apt repository (can be anything).
@@ -161,14 +144,24 @@ See the section above.
 ### Setting up gpg-keys
 The GPG keys are used for signing packages, they can be provided to;
 ```bash
-$CONFIG_FOLDER/home/debian/.gnupg/pubring.pgp
-$CONFIG_FOLDER/home/debian/.gnupg/secring.pgp
+$CONFIG_FOLDER/home/debian/.gnupg/master_pub.gpg
+$CONFIG_FOLDER/home/debian/.gnupg/signing_sec.pgp
 ```
 Generating gpg keys can be done by running;
 ```bash
 $ gpg --gen-key
 ```
-The keys will be output to `~/.gnupg/*.gpg`
+
+I suggest making a master with a long time to expire, then a signing sub key with a shorter
+time to expire. Keep the master offline, and backed up. Export the master pub and the signing key
+Then if your signing key is exposed, you can revoke it, and issue a new one with your safe offline master key. 
+
+Right now you can only see the subkey key ids when you are in edit mode:
+`gpg --edit-key`
+
+See a good how to here https://www.debuntu.org/how-to-importexport-gpg-key-pair/
+But remember to only export the master public key and the sub key private key.
+Export the master key at a different time to back it up. 
 
 ### Setting up nginx
 The nginx `sites-enabled` file can be provided as:

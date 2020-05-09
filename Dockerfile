@@ -1,5 +1,5 @@
-FROM debian:jessie
-MAINTAINER Emil 'Skeen' Madsen <sovende@gmail.com>
+FROM debian:buster
+MAINTAINER Hal 'SoldHal' Emmerich <hal@halemmerich.com>
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install the necessary packages

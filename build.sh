@@ -14,11 +14,15 @@ else
     cp $AUTHORIZED_KEYS_MOUNT $AUTHORIZED_KEYS
 fi
 
+
+
 # GPG-keys
-GPG_PUBLIC=/home/debian/.gnupg/pubring.gpg
+# pass in the master public key and
+# a new signing sub key
+GPG_PUBLIC=/home/debian/.gnupg/master_pub.gpg
 GPG_PUBLIC_MOUNT=$(echo "/srv$GPG_PUBLIC")
 
-GPG_SECRET=/home/debian/.gnupg/secring.gpg
+GPG_SECRET=/home/debian/.gnupg/signing_sec.gpg
 GPG_SECRET_MOUNT=$(echo "/srv$GPG_SECRET")
 
 if [ ! -f $GPG_PUBLIC_MOUNT ] || [ ! -f $GPG_SECRET_MOUNT ]; then
@@ -26,43 +30,16 @@ if [ ! -f $GPG_PUBLIC_MOUNT ] || [ ! -f $GPG_SECRET_MOUNT ]; then
     echo "---GPG-KEYS---"
     echo "Warning: No GPG keys found!"
     echo " Please provide a pair to: \$CONFIG_DIR$GPG_KEY_DIR"
-    mkdir -p $GPG_KEY_DIR
-    echo ""
-
-    echo -e "Auto: Generating keys \c"
-    if [[ -z "$KEY_REAL_NAME" ]] || [[ -z "$KEY_COMMENT" ]] || [[ -z "$KEY_EMAIL" ]]; then
-        echo "in interactive mode;"
-        echo "--------------------------------------------------------------------------------"
-        sudo -u debian gpg --gen-key
-    else
-        echo "in batch-mode;"
-        echo "--------------------------------------------------------------------------------"
-
-        BATCH_FILE=/home/debian/batch_cmds
-
-        cat /templates/batch_cmds > $BATCH_FILE
-        echo "Name-Real: $KEY_REAL_NAME" >> $BATCH_FILE
-        echo "Name-Comment: $KEY_COMMENT" >> $BATCH_FILE
-        echo "Name-Email: $KEY_EMAIL" >> $BATCH_FILE
-        echo "%commit" >> $BATCH_FILE
-
-        sudo -u debian gpg --batch --gen-key $BATCH_FILE
-    fi
-
-    echo "--------------------------------------------------------------------------------"
-    echo "Key generation done!"
-    echo ""
-
-    cp $GPG_PUBLIC $GPG_PUBLIC_MOUNT
-    cp $GPG_SECRET $GPG_SECRET_MOUNT
+    shutdown now
 else
     cp $GPG_PUBLIC_MOUNT $GPG_PUBLIC
     cp $GPG_SECRET_MOUNT $GPG_SECRET
+    sudo -u debian gpg --import $GPG_PUBLIC $GPG_SECRET
 fi
-sudo -u debian gpg --list-keys > /dev/null 2> /dev/null
 
-KEY_ID=$(sudo -u debian gpg --list-keys | tail -2 | sed "s/.*\/\(.*\)\s.*/\1/g")
-#echo "KEY_ID: $KEY_ID"
+sudo -u debian gpg --list-keys > /dev/null 2> /dev/null
+KEY_ID=$(sudo -u debian gpg --list-keys | head -4 | tail -1 | sed -e 's/^[[:space:]]*//')
+echo "KEY_ID: $KEY_ID"
 
 # Nginx configuration
 NGINX_CONFIGURATION=/etc/nginx/sites-enabled/reprepro-repository
