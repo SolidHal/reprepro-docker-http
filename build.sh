@@ -26,11 +26,9 @@ GPG_SECRET=/home/debian/.gnupg/signing_sec.gpg
 GPG_SECRET_MOUNT=$(echo "/srv$GPG_SECRET")
 
 if [ ! -f $GPG_PUBLIC_MOUNT ] || [ ! -f $GPG_SECRET_MOUNT ]; then
-    GPG_KEY_DIR=$(dirname $GPG_PUBLIC_MOUNT)
     echo "---GPG-KEYS---"
     echo "Warning: No GPG keys found!"
     echo " Please provide a pair to: \$CONFIG_DIR$GPG_KEY_DIR"
-    shutdown now
 else
     cp $GPG_PUBLIC_MOUNT $GPG_PUBLIC
     cp $GPG_SECRET_MOUNT $GPG_SECRET
@@ -39,7 +37,7 @@ fi
 
 sudo -u debian gpg --list-keys > /dev/null 2> /dev/null
 KEY_ID=$(sudo -u debian gpg --list-keys | head -4 | tail -1 | sed -e 's/^[[:space:]]*//')
-echo "KEY_ID: $KEY_ID"
+# echo "KEY_ID: $KEY_ID"
 
 # Nginx configuration
 NGINX_CONFIGURATION=/etc/nginx/sites-enabled/reprepro-repository
@@ -62,7 +60,7 @@ if [ ! -f $NGINX_CONFIGURATION_MOUNT ]; then
         echo "in batch-mode."
     fi
 
-    cat /templates/reprepro-repository | sed "s/!!!HOST_NAME_HERE!!!/$HOSTNAME/g" > $NGINX_CONFIGURATION_MOUNT
+    cat /templates/reprepro-repository | sed "s/!!!HOST_NAME_HERE!!!/$HOSTNAME;/g" > $NGINX_CONFIGURATION_MOUNT
 
     echo "Configuration file created!"
     echo ""

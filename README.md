@@ -43,8 +43,7 @@ $ export HOSTNAME="{{YOUR-DOMAIN-NAME}}"
 $ export PROJECT_NAME="{{NAME-OF-APT-REPO}}" 
 $ export CODE_NAME="{{CODENAME-OF-OS-RELEASE}}" 
 $ docker run -v $CONFIG_FOLDER:/srv/ -p $WEBSERVER_PORT:80 -p $SSH_PORT:22 \
-             -e KEY_REAL_NAME=$KEY_REAL_NAME -e KEY_COMMENT=$KEY_COMMENT \
-             -e KEY_EMAIL=$KEY_EMAIL -e HOSTNAME=$HOSTNAME \
+             -e HOSTNAME=$HOSTNAME \
              -e PROJECT_NAME=$PROJECT_NAME -e CODE_NAME=$CODE_NAME \
              -it solidhal/reprepro
 ```
