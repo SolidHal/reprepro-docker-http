@@ -60,7 +60,7 @@ if [ ! -f $NGINX_CONFIGURATION_MOUNT ]; then
         echo "in batch-mode."
     fi
 
-    cat /templates/reprepro-repository | sed "s/!!!HOST_NAME_HERE!!!/$HOSTNAME;/g" > $NGINX_CONFIGURATION_MOUNT
+    cat /templates/reprepro-repository | sed "s/!!!HOST_NAME_HERE!!!/$HOSTNAME/g" > $NGINX_CONFIGURATION_MOUNT
 
     echo "Configuration file created!"
     echo ""
