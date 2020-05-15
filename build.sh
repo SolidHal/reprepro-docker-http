@@ -12,6 +12,7 @@ if [ ! -f $AUTHORIZED_KEYS_MOUNT ]; then
     echo ""
 else
     cp $AUTHORIZED_KEYS_MOUNT $AUTHORIZED_KEYS
+    chown debian:debian $AUTHORIZED_KEYS
 fi
 
 
